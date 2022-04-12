@@ -4,7 +4,7 @@ This wedding project was developed in order to receive the attendance of the gue
 
 # Overview
 
-<img align="center" width="80%" alt="html5"  src="./assets/images/wedding.png"/>
+<img align="center" width="80%" alt="Wedding"  src="./images/wedding.png"/>
 
 
 # Links
