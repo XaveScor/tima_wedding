@@ -11,7 +11,7 @@ This wedding project was developed in order to receive the attendance of the gue
 
 1 - [Github](https://github.com/Tiago-Rodrigs/Webiste-Wedding)
 
-2 - [Website live](https://this-is-a-wedding-demo.netlify.app)
+2 - [Live demo](https://this-is-a-wedding-demo.netlify.app)
 
 3 - [Design]()
 
