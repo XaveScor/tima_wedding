@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Wedding</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Font style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Parisienne&family=Raleway:wght@300;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+
+    <!-- Links to the page style -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- Navegation bar-->
+    <header>
+      <li>
+        <a href="#details">DETAILS</a>
+      </li>
+
+      <li>
+        <a href="#registry">REGISTRY</a>
+      </li>
+
+      <li>
+        <a href="#rsvp">RSVP</a>
+      </li>
+    </header>
+
+    <!-- Initial view-->
+
+    <div class="container-title fade-in">
+      <h1>Aubrey & Paul</h1>
+      <h2>ARE GETTING MERRIED</h2>
+    </div>
+
+    <!-- Details - First section -->
+    <section class="container" id="details">
+      <h3>
+        You're invited to our wedding on <br />
+        August 1, 2016
+      </h3>
+
+      <p>
+        611 SW Kingston Ave
+        <br />
+        Portland, OR 97205
+        <br />
+        (503) 555-0123
+      </p>
+
+      <h3>RECEPTION 6:00</h3>
+      <p>
+        309 Southwest Broadway
+        <br />
+        Portland, OR 97205
+        <br />
+        (503) 555-0123
+      </p>
+    </section>
+
+    <br />
+    <br />
+    <br />
+
+    <!-- Registry - Second section  -->
+    <section class="container" id="registry">
+      <img src="./images/couple.jpg" alt="Married image" />
+
+      <h1>Registry</h1>
+
+      <p>
+        We are so incredibly thankful for the effort you'll be making to join us
+        for our special day in (destination). Your presence is your present, so
+        please, no gifts! We are lucky enough to have everything we need for
+        this new chapter together, so please, no gifts required!
+      </p>
+    </section>
+
+    <br />
+    <br />
+    <br />
+
+    <!-- RSVP form - Here user can send a message or confirmation-->
+    
+    <form class="container-form" id="rsvp">
+      <h1>R.S.V.P</h1>
+
+      <input type="text" placeholder="Name" required />
+      <input type="email" placeholder="Email" required />
+      <input type="text" placeholder="Guests" required />
+      <textarea placeholder="Message" required></textarea>
+      <button onclick="sendEmail()">Send</button>
+    </form>
+
+    <br />
+    <br />
+    <br />
+
+    <script>
+      /************* Handle the data from RSVP ********************/
+      async function sendEmail() {
+        alert("This is a demo and the message coundn't be sent.");
+      }
+    </script>
+  </body>
+</html>

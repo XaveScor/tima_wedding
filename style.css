@@ -1,0 +1,257 @@
+/************** Setting colors variables ************/
+
+:root {
+  --font-color: rgba(0, 0, 0, 0.311);
+  --shadow-color: rgba(87, 87, 87, 0.109);
+  --btn-color: orangered;
+}
+
+/**************** Glogal style ********************/
+
+html,
+body {
+  margin: 0px;
+  padding: 0px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  background-image: url("./images/background.jpg");
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+* {
+  font-family: "Raleway", sans-serif;
+  color: var(--font-color);
+  font-size: 15pt;
+  box-sizing: border-box;
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: var(--font-color);
+}
+
+.container {
+  position: relative;
+  background: white;
+  box-shadow: 10px 10px 10px var(--shadow-color);
+  width: 50%;
+  margin: auto;
+  border-radius: 9px;
+  text-align: center;
+  overflow: hidden;
+}
+
+h1,
+h3 {
+  font-size: 25pt;
+  padding-top: 20px;
+}
+
+p {
+  padding: 30px;
+}
+/*********** Header **************/
+
+header {
+  box-shadow: 0px 1px 10px var(--shadow-color);
+  display: flex;
+  justify-content: center;
+}
+
+header li {
+  margin: 15px;
+}
+
+/*********** Title **************/
+
+.container-title {
+  margin-top: 150px;
+  margin-bottom: 300px;
+  width: 100%;
+  text-align: center;
+}
+
+.container-title h1 {
+  font-size: 70pt;
+  color: rgba(0, 0, 0, 0.505);
+  font-family: "Parisienne", cursive;
+}
+
+.container-title h2 {
+  font-weight: 50;
+}
+
+/*********** Registry **************/
+
+.container img {
+  width: 100%;
+  height: 340px;
+  object-fit: cover;
+}
+
+/*********** RSVP **************/
+
+.container-form {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  box-shadow: 10px 10px 10px var(--shadow-color);
+  background: rgba(255, 255, 255, 0.431);
+  width: 50%;
+  margin: auto;
+  border-radius: 9px;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.container-form input,
+textarea {
+  width: 80%;
+  margin: 8px auto;
+  padding: 15px;
+  border: 1px solid transparent;
+  border-bottom: 1px solid var(--shadow-color);
+  border-radius: 7px;
+  outline: none;
+  background: transparent;
+}
+
+.container-form textarea {
+  height: 200px;
+}
+
+.container-form button {
+  width: 110px;
+  padding: 10px;
+  margin: 10px auto;
+  margin-right: 7.8%;
+  border-radius: 7px;
+  outline: none;
+  background: transparent;
+  border: 1px solid var(--btn-color);
+  color: var(--btn-color);
+}
+
+.container-form input:hover,
+textarea:hover {
+  background: white;
+}
+
+.container-form button:hover {
+  background: var(--btn-color);
+  border: 1px solid var(--btn-color);
+  color: white;
+}
+
+/************** FadeIn ***************/
+
+.fade-in {
+  animation: fadeIn ease 6s;
+  -webkit-animation: fadeIn ease 6s;
+  -moz-animation: fadeIn ease 6s;
+  -o-animation: fadeIn ease 6s;
+  -ms-animation: fadeIn ease 6s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-o-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@-ms-keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/***************** Spin Effect ************/
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media screen and (max-width: 992px) {
+  /**************** Glogal style ********************/
+
+  * {
+    font-size: 11pt;
+  }
+
+  .container {
+    width: 90%;
+  }
+
+  h1,
+  h3 {
+    font-size: 15pt;
+  }
+
+  .container img {
+    height: 240px;
+  }
+
+  /*********** Title **************/
+
+  .container-title h1 {
+    margin-top: 250px;
+    font-size: 38pt;
+  }
+
+  /*********** RSVP **************/
+  .container-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+    width: 90%;
+    margin: auto;
+    border-radius: 9px;
+    text-align: center;
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .container-form input,
+  textarea,
+  button {
+    width: 80%;
+  }
+
+  .container-form button {
+    padding: 10px;
+  }
+}
