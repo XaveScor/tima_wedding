@@ -21,7 +21,7 @@ body {
   background-repeat: no-repeat;
 }
 * {
-  font-family: "Raleway", sans-serif;
+  font-family: "Montserrat", sans-serif;
   color: var(--font-color);
   font-size: 15pt;
   box-sizing: border-box;
@@ -76,12 +76,13 @@ header li {
 
 .container-title h1 {
   font-size: 70pt;
-  color: rgba(0, 0, 0, 0.505);
-  font-family: "Parisienne", cursive;
+  color: rgba(0, 0, 0, 0.65);
+  font-family: "Great Vibes", cursive;
 }
 
 .container-title h2 {
-  font-weight: 50;
+  font-family: "Ysabeau Infant", sans-serif;
+  font-weight: 250;
 }
 
 /*********** Registry **************/
@@ -208,7 +209,7 @@ textarea:hover {
   /**************** Glogal style ********************/
 
   * {
-    font-size: 11pt;
+    font-size: 13pt;
   }
 
   .container {

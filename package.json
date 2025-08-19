@@ -1,0 +1,16 @@
+{
+  "name": "tima_wedding",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "lite-server": "^2.6.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
