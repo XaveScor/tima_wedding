@@ -6,5 +6,5 @@ compatibility_flags = [ "nodejs_compat" ]
 [observability.logs]
 enabled = true
 
-[env.production.vars]
+[vars]
 GOOGLE_SHEETS_ID = "1W8QfsgzJn-f6ZMX6S9l1A6jG2a3jABfeegIloJgo1e0"
