@@ -30,7 +30,8 @@ app.post('/', async (c) => {
 
     // Prepare data for Google Sheets
     const now = new Date();
-    const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
+    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
 
     const attendanceText = attendance === 'yes' ? 'Обязательно буду!' : 'На этот раз без меня';
     
