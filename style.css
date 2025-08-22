@@ -164,11 +164,36 @@ textarea {
     border-bottom: 1px solid var(--shadow-color);
     border-radius: 7px;
     outline: none;
-    background: transparent;
+    background: white;
 }
 
 .container-form textarea {
     height: 200px;
+}
+
+.container-form input[type=text]::placeholder,
+textarea::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
+
+.container-form input[type=text]::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
+
+.container-form input[type=text]::-moz-placeholder,
+textarea::-moz-placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
+
+.container-form input[type=text]:valid:not(:placeholder-shown),
+textarea:valid:not(:placeholder-shown) {
+    background: #fff;
+    border-bottom: 1px solid rgba(87, 87, 87, 0.3);
+    color: rgba(0, 0, 0, 0.7);
 }
 
 .container-form input[type=submit] {
@@ -182,15 +207,37 @@ textarea {
     color: var(--btn-color);
 }
 
+.container-form input[type=text]:focus,
+textarea:focus {
+    background: #f8f9fa;
+    border-bottom: 2px solid var(--btn-color);
+    box-shadow: 0 2px 8px rgba(255, 69, 0, 0.1);
+}
+
 .container-form input[type=text]:hover,
 textarea:hover {
-    background: white;
+    background: #f8f9fa;
 }
 
 .container-form input[type=submit]:hover {
     background: var(--btn-color);
     border: 1px solid var(--btn-color);
     color: white;
+}
+
+.container-form input[type=text]:disabled,
+textarea:disabled {
+    background: #f5f5f5 !important;
+    color: rgba(0, 0, 0, 0.4) !important;
+    border-bottom: 1px solid rgba(87, 87, 87, 0.2) !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
+.container-form input[type=text]:disabled::placeholder,
+textarea:disabled::placeholder {
+    color: rgba(0, 0, 0, 0.3) !important;
+    opacity: 1 !important;
 }
 
 /************** FadeIn ***************/
