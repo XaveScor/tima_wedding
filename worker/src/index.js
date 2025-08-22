@@ -29,14 +29,8 @@ app.post('/', async (c) => {
     }
 
     // Prepare data for Google Sheets
-    const timestamp = new Date().toLocaleString('ru-RU', { 
-      timeZone: 'Asia/Almaty',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    const now = new Date();
+    const timestamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
     const attendanceText = attendance === 'yes' ? 'Обязательно буду!' : 'На этот раз без меня';
     
