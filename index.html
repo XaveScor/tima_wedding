@@ -24,7 +24,7 @@
 <!-- Navegation bar-->
 <header>
     <li>
-        <a href="#details">DETAILS</a>
+        <a href="#details">О СВАДЬБЕ</a>
     </li>
 
     <!--
@@ -34,7 +34,7 @@
     -->
 
     <li>
-        <a href="#rsvp">RSVP</a>
+        <a href="#rsvp">ПОДТВЕРЖДЕНИЕ</a>
     </li>
 </header>
 
@@ -142,9 +142,73 @@
 
   /************* Handle the data from RSVP ********************/
   async function sendEmail() {
-    alert("Это демо версия, сообщение не может быть отправлено.");
-    formSubmitted = true; // Mark as submitted so no warning is shown
-    saveSubmissionStatus(true); // Persist submission status to localStorage
+    // Get form data
+    const attendanceElement = document.querySelector('input[name="attendance"]:checked');
+    const nameField = document.getElementById('nameField');
+    const guestsField = document.getElementById('guestsField');
+    const messageField = document.getElementById('messageField');
+    
+    // Validate required fields
+    if (!attendanceElement || !nameField.value.trim()) {
+      alert('Пожалуйста, заполните обязательные поля');
+      return;
+    }
+    
+    // Prepare form data
+    const formData = {
+      attendance: attendanceElement.value,
+      name: nameField.value.trim(),
+      guest: guestsField.value.trim(),
+      message: messageField.value.trim()
+    };
+    
+    // Show loading state
+    const submitButton = document.querySelector('input[type="submit"]');
+    const originalText = submitButton.value;
+    submitButton.value = 'Отправляем...';
+    submitButton.disabled = true;
+    
+    try {
+      // Send to Cloudflare Worker
+      const response = await fetch('https://tima-wedding.xavescor.workers.dev', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(result.message || 'Ответ отправлен! Спасибо за подтверждение!');
+        formSubmitted = true; // Mark as submitted so no warning is shown
+        saveSubmissionStatus(true); // Persist submission status to localStorage
+        
+        // Clear form fields
+        nameField.value = '';
+        guestsField.value = '';
+        messageField.value = '';
+        // Reset radio buttons
+        document.querySelectorAll('input[name="attendance"]').forEach(radio => {
+          radio.checked = false;
+        });
+        // Disable fields since no attendance is selected
+        nameField.disabled = true;
+        guestsField.disabled = true;
+        messageField.disabled = true;
+      } else {
+        alert(result.error || 'Ошибка отправки. Попробуйте еще раз.');
+      }
+      
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Ошибка отправки. Проверьте интернет-соединение и попробуйте еще раз.');
+    } finally {
+      // Restore button state
+      submitButton.value = originalText;
+      submitButton.disabled = false;
+    }
   }
 
   /************* Toggle form fields based on attendance choice ********************/
