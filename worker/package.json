@@ -17,7 +17,7 @@
   "author": "Tima Wedding Team",
   "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^4.32.0"
   },
   "dependencies": {
     "googleapis": "^157.0.0"
