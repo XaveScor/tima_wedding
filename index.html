@@ -118,9 +118,33 @@
 <br/>
 
 <script>
+  /************* Form state tracking ********************/
+  let formSubmitted = false;
+
+  /************* localStorage functions ********************/
+  function saveSubmissionStatus(submitted) {
+    try {
+      localStorage.setItem('weddingFormSubmitted', submitted.toString());
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+    }
+  }
+
+  function loadSubmissionStatus() {
+    try {
+      const saved = localStorage.getItem('weddingFormSubmitted');
+      return saved === 'true';
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return false;
+    }
+  }
+
   /************* Handle the data from RSVP ********************/
   async function sendEmail() {
     alert("Это демо версия, сообщение не может быть отправлено.");
+    formSubmitted = true; // Mark as submitted so no warning is shown
+    saveSubmissionStatus(true); // Persist submission status to localStorage
   }
 
   /************* Toggle form fields based on attendance choice ********************/
@@ -147,6 +171,23 @@
       messageField.value = '';
     }
   }
+
+  /************* Page close prevention ********************/
+  window.addEventListener('beforeunload', function(event) {
+    // Only show warning if form has data and hasn't been submitted
+    if (!formSubmitted) {
+      const message = 'Форма ещё не отправлена. Уверены что хотите уйти?';
+      event.preventDefault();
+      event.returnValue = message; // For older browsers
+      return message;
+    }
+  });
+
+  /************* Initialize page state ********************/
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load submission status from localStorage
+    formSubmitted = loadSubmissionStatus();
+  });
 </script>
 </body>
 </html>
