@@ -208,17 +208,37 @@ function base64UrlEncode(data) {
 }
 
 function pemToArrayBuffer(pem) {
-  const b64 = pem
-    .replace('-----BEGIN PRIVATE KEY-----', '')
-    .replace('-----END PRIVATE KEY-----', '')
-    .replace(/\s/g, '');
-  
-  const binary = atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
+  try {
+    console.log('Processing private key, length:', pem?.length);
+    
+    if (!pem || typeof pem !== 'string') {
+      throw new Error('Private key is missing or not a string');
+    }
+    
+    const b64 = pem
+      .replace('-----BEGIN PRIVATE KEY-----', '')
+      .replace('-----END PRIVATE KEY-----', '')
+      .replace(/\s/g, '');
+    
+    console.log('Extracted base64 length:', b64.length);
+    console.log('First 50 chars:', b64.substring(0, 50));
+    console.log('Last 50 chars:', b64.substring(b64.length - 50));
+    
+    // Validate base64 format
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(b64)) {
+      throw new Error('Invalid base64 characters in private key');
+    }
+    
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  } catch (error) {
+    console.error('Error in pemToArrayBuffer:', error.message);
+    throw error;
   }
-  return bytes.buffer;
 }
 
 function createSuccessResponse(message) {
