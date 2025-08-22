@@ -2,6 +2,9 @@ name = "tima-wedding"
 main = "src/index.js"
 compatibility_date = "2023-12-01"
 
+[observability.logs]
+enabled = true
+
 [env.production.vars]
 GOOGLE_SHEETS_ID = "1W8QfsgzJn-f6ZMX6S9l1A6jG2a3jABfeegIloJgo1e0"
 GOOGLE_SERVICE_ACCOUNT_EMAIL = "tima-wedding@tima-wedding.iam.gserviceaccount.com"
