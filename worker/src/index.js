@@ -78,13 +78,8 @@ async function saveToGoogleSheets(env, rowData) {
   try {
     const { google } = await import('googleapis');
     
-    // Create service account credentials
-    const credentials = {
-      type: 'service_account',
-      project_id: env.GOOGLE_PROJECT_ID,
-      private_key: env.GOOGLE_PRIVATE_KEY,
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    };
+    // Parse the service account JSON
+    const credentials = JSON.parse(env.GOOGLE_SERVICE_ACCOUNT_JSON);
 
     // Initialize Google Auth
     const auth = new google.auth.GoogleAuth({
