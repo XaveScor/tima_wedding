@@ -10,30 +10,30 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy Wedding Worker
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: 'worker/package.json'
-          
+
       - name: Install dependencies
         run: |
           cd worker
-          npm install
-          
+          npm ci
+
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: 'worker'
           command: deploy
-          
+
       - name: Deployment notification
         run: |
           echo "✅ Wedding RSVP Worker deployed successfully!"
