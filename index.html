@@ -1,112 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <title>Wedding</title>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <!-- Font style -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link
-      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Ysabeau+Infant:ital,wght@0,1..1000;1,1..1000&display=swap"
-      rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Ysabeau+Infant:ital,wght@0,1..1000;1,1..1000&display=swap"
+            rel="stylesheet"
     />
 
-    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon"/>
 
     <!-- Links to the page style -->
-    <link rel="stylesheet" href="style.css" />
-  </head>
+    <link rel="stylesheet" href="style.css"/>
+</head>
 
-  <body>
-    <!-- Navegation bar-->
-    <header>
-      <li>
+<body>
+<!-- Navegation bar-->
+<header>
+    <li>
         <a href="#details">DETAILS</a>
-      </li>
+    </li>
 
-      <li>
+    <!--
+    <li>
         <a href="#registry">REGISTRY</a>
-      </li>
+    </li>
+    -->
 
-      <li>
+    <li>
         <a href="#rsvp">RSVP</a>
-      </li>
-    </header>
+    </li>
+</header>
 
-    <!-- Initial view-->
+<!-- Initial view-->
 
-    <div class="container-title fade-in">
-      <h1>Темирхан & Марина</h1>
-      <h2>ИГРАЮТ СВАДЬБУ</h2>
-    </div>
+<div class="container-title fade-in">
+    <h1>Темирхан & Марина</h1>
+    <h2>ИГРАЮТ СВАДЬБУ</h2>
+</div>
 
-    <!-- Details - First section -->
-    <section class="container" id="details">
-      <h3>
-        Вы приглашены на нашу свадьбу <br />
+<!-- Details - First section -->
+<section class="container" id="details">
+    <h3>
+        Вы приглашены на нашу свадьбу <br/>
         20 сентября, 2025
-      </h3>
+    </h3>
 
-      <p>
+    <p>
         Sky Hall
-        <br />
+        <br/>
         Казахстан, Алматы
-        <br />
+        <br/>
         ул. Кожабекова 21/1
-      </p>
+    </p>
 
-      <h3>Начало церемонии 18:00</h3>
-      <p style="position:relative;overflow:hidden;">
-        <iframe src="https://yandex.kz/map-widget/v1/?ll=76.895135%2C43.201024&amp;mode=search&amp;ol=geo&amp;ouri=ymapsbm1%3A%2F%2Fgeo%3Fdata%3DCgozNDUyMDEzNDA1EkfSmtCw0LfQsNKb0YHRgtCw0L0sINCQ0LvQvNCw0YLRiywg0prQvtC20LDQsdC10LrQvtCyINC606nRiNC10YHRliwgMjEvMSIKDU7KmUIV2M0sQg%2C%2C&amp;z=18.02" width="560" height="400" allowfullscreen="true" style="position:relative;" frameborder="0"></iframe>
-      </p>
-    </section>
+    <h3>Начало церемонии 18:00</h3>
+    <p style="position:relative;overflow:hidden;">
+        <iframe src="https://yandex.kz/map-widget/v1/?indoorLevel=1&ll=76.895010%2C43.201017&mode=search&oid=102807593836&ol=biz&z=17.84"
+                width="560" height="400" allowfullscreen="true" style="border: 0;" t></iframe>
+    </p>
+</section>
 
-    <br />
-    <br />
-    <br />
+<br/>
+<br/>
+<br/>
 
-    <!-- Registry - Second section  -->
-    <section class="container" id="registry">
-      <img src="./images/couple.jpg" alt="Married image" />
+<!-- Registry - Second section  -->
+<!--
+<section class="container" id="registry">
+    <img src="./images/couple.webp" alt="Married image"/>
 
-      <h1>Registry</h1>
+    <h1>Registry</h1>
 
-      <p>
+    <p>
         We are so incredibly thankful for the effort you'll be making to join us
         for our special day in (destination). Your presence is your present, so
         please, no gifts! We are lucky enough to have everything we need for
         this new chapter together, so please, no gifts required!
-      </p>
-    </section>
+    </p>
+</section>
+-->
 
-    <br />
-    <br />
-    <br />
+<br/>
+<br/>
+<br/>
 
-    <!-- RSVP form - Here user can send a message or confirmation-->
-    
-    <form class="container-form" id="rsvp">
-      <h1>R.S.V.P</h1>
+<!-- RSVP form - Here user can send a message or confirmation-->
 
-      <input type="text" placeholder="Name" required />
-      <input type="email" placeholder="Email" required />
-      <input type="text" placeholder="Guests" required />
-      <textarea placeholder="Message" required></textarea>
-      <button onclick="sendEmail()">Send</button>
-    </form>
+<form class="container-form" id="rsvp">
+    <h1>Будете ли вы?</h1>
 
-    <br />
-    <br />
-    <br />
+    <div class="radio-group">
+        <label>
+            <input type="radio" name="attendance" value="yes" id="attendYes" onchange="toggleFields()">
+            <span>Обязательно буду!</span>
+        </label>
+        <label>
+            <input type="radio" name="attendance" value="no" id="attendNo" onchange="toggleFields()">
+            <span>На этот раз без меня</span>
+        </label>
+    </div>
 
-    <script>
-      /************* Handle the data from RSVP ********************/
-      async function sendEmail() {
-        alert("This is a demo and the message coundn't be sent.");
-      }
-    </script>
-  </body>
+    <input type="text" placeholder="Имя" required id="nameField"/>
+    <input type="text" placeholder="(Имя +1, если приведёте)" id="guestsField"/>
+    <textarea placeholder="Что-то ещё хотите добавить?" id="messageField"></textarea>
+    <input type="submit" onclick="sendEmail()" value="Отправить">
+</form>
+
+<br/>
+<br/>
+<br/>
+
+<script>
+  /************* Handle the data from RSVP ********************/
+  async function sendEmail() {
+    alert("Это демо версия, сообщение не может быть отправлено.");
+  }
+
+  /************* Toggle form fields based on attendance choice ********************/
+  function toggleFields() {
+    const attendYes = document.getElementById('attendYes');
+    const nameField = document.getElementById('nameField');
+    const guestsField = document.getElementById('guestsField');
+    const messageField = document.getElementById('messageField');
+
+    if (attendYes.checked) {
+      // Enable all fields when attending
+      nameField.disabled = false;
+      guestsField.disabled = false;
+      messageField.disabled = false;
+    } else {
+      // Disable all fields when not attending
+      nameField.disabled = true;
+      guestsField.disabled = true;
+      messageField.disabled = true;
+
+      // Clear the fields
+      nameField.value = '';
+      guestsField.value = '';
+      messageField.value = '';
+    }
+  }
+</script>
+</body>
 </html>
