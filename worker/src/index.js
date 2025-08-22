@@ -1,77 +1,84 @@
-export default {
-  async fetch(request, env, ctx) {
-    // Handle CORS preflight requests
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-          'Access-Control-Max-Age': '86400',
-        },
-      });
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+
+const app = new Hono();
+
+// CORS middleware
+app.use('*', cors({
+  origin: '*',
+  allowMethods: ['POST', 'OPTIONS'],
+  allowHeaders: ['Content-Type'],
+  maxAge: 86400,
+}));
+
+// RSVP form submission endpoint
+app.post('/', async (c) => {
+  try {
+    // Parse form data
+    const formData = await c.req.json();
+    console.log('Received form data:', formData);
+
+    // Validate required fields
+    const { attendance, name, guest, message } = formData;
+    
+    if (!attendance || !name) {
+      return c.json({ 
+        success: false, 
+        error: 'Пожалуйста, заполните обязательные поля' 
+      }, 400);
     }
 
-    // Handle POST requests for form submission
-    if (request.method === 'POST') {
-      try {
-        // Parse form data
-        const formData = await request.json();
-        console.log('Received form data:', formData);
-
-        // Validate required fields
-        const { attendance, name, guest, message } = formData;
-        
-        if (!attendance || !name) {
-          return createErrorResponse('Пожалуйста, заполните обязательные поля');
-        }
-
-        // Prepare data for Google Sheets
-        const timestamp = new Date().toLocaleString('ru-RU', { 
-          timeZone: 'Asia/Almaty',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-
-        const attendanceText = attendance === 'yes' ? 'Обязательно буду!' : 'На этот раз без меня';
-        
-        const rowData = [
-          timestamp,
-          attendanceText,
-          name.trim(),
-          guest?.trim() || '',
-          message?.trim() || ''
-        ];
-
-        // Save to Google Sheets
-        const result = await saveToGoogleSheets(env, rowData);
-        
-        if (result.success) {
-          return createSuccessResponse('Ответ отправлен! Спасибо за подтверждение!');
-        } else {
-          console.error('Google Sheets error:', result.error);
-          return createErrorResponse('Ошибка сохранения данных. Попробуйте еще раз.');
-        }
-
-      } catch (error) {
-        console.error('Worker error:', error);
-        return createErrorResponse('Ошибка обработки запроса. Попробуйте еще раз.');
-      }
-    }
-
-    // Handle other methods
-    return new Response('Method not allowed', { 
-      status: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      }
+    // Prepare data for Google Sheets
+    const timestamp = new Date().toLocaleString('ru-RU', { 
+      timeZone: 'Asia/Almaty',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
     });
+
+    const attendanceText = attendance === 'yes' ? 'Обязательно буду!' : 'На этот раз без меня';
+    
+    const rowData = [
+      timestamp,
+      attendanceText,
+      name.trim(),
+      guest?.trim() || '',
+      message?.trim() || ''
+    ];
+
+    // Save to Google Sheets
+    const result = await saveToGoogleSheets(c.env, rowData);
+    
+    if (result.success) {
+      return c.json({ 
+        success: true, 
+        message: 'Ответ отправлен! Спасибо за подтверждение!' 
+      });
+    } else {
+      console.error('Google Sheets error:', result.error);
+      return c.json({ 
+        success: false, 
+        error: 'Ошибка сохранения данных. Попробуйте еще раз.' 
+      }, 500);
+    }
+
+  } catch (error) {
+    console.error('Worker error:', error);
+    return c.json({ 
+      success: false, 
+      error: 'Ошибка обработки запроса. Попробуйте еще раз.' 
+    }, 500);
   }
-};
+});
+
+// Handle other methods
+app.all('*', (c) => {
+  return c.text('Method not allowed', 405);
+});
+
+export default app;
 
 // Helper function to save data to Google Sheets
 async function saveToGoogleSheets(env, rowData) {
@@ -110,29 +117,3 @@ async function saveToGoogleSheets(env, rowData) {
   }
 }
 
-
-function createSuccessResponse(message) {
-  return new Response(JSON.stringify({ 
-    success: true, 
-    message 
-  }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
-}
-
-function createErrorResponse(message) {
-  return new Response(JSON.stringify({ 
-    success: false, 
-    error: message 
-  }), {
-    status: 400,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-  });
-}

@@ -20,6 +20,7 @@
     "wrangler": "^4.32.0"
   },
   "dependencies": {
-    "googleapis": "^157.0.0"
+    "googleapis": "^157.0.0",
+    "hono": "^4.6.3"
   }
 }
