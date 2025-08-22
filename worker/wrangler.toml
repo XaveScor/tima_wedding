@@ -1,6 +1,7 @@
 name = "tima-wedding"
 main = "src/index.js"
-compatibility_date = "2023-12-01"
+compatibility_date = "2024-09-23"
+compatibility_flags = [ "nodejs_compat" ]
 
 [observability.logs]
 enabled = true
