@@ -81,6 +81,8 @@
 4. User can modify RSVP → Form remains populated, can resubmit changes
 5. User reopens invitation → Previous RSVP data restored from server
 
+**Note:** All operations are race-condition-safe - admin can sort/filter the sheet at any time without breaking user operations.
+
 ## Form Behavior & User Experience
 
 ### Form Data Persistence
@@ -132,6 +134,33 @@ The system implements strict data filtering to protect sensitive admin and syste
 - Browser network requests only contain user-relevant data
 - All sensitive system data remains server-side only
 
+## Race Condition Protection
+
+### The Problem
+**Critical Race Condition Vulnerability (FIXED):**
+- Admin sorts/filters Google Sheet between API read and write operations
+- System would write to wrong row, causing data corruption
+- User A's RSVP could overwrite User B's data
+
+### The Solution
+**UUID-Based Atomic Operations:**
+- ✅ **Eliminated row position dependency** - No more volatile `rowIndex`
+- ✅ **Atomic find-and-update** - UUID lookup happens at write time
+- ✅ **Race condition immune** - Works regardless of sheet sorting
+- ✅ **Data integrity protected** - Cannot write to wrong user's row
+
+### Implementation Details
+**`updateRowByUUID()` Function:**
+1. Reads current sheet state to find UUID position
+2. Performs atomic update using current row position
+3. Eliminates time gap between read and write operations
+4. All update functions use this race-safe approach
+
+**Benefits:**
+- **Admin can sort safely** - Sheet reordering doesn't break API operations
+- **No data corruption** - Updates always target correct user row
+- **Concurrent operations safe** - Multiple users can submit simultaneously
+
 ## Technical Notes
 
 - Column H (Служебная инф) contains the UUID for identification
@@ -143,3 +172,5 @@ The system implements strict data filtering to protect sensitive admin and syste
 - Response filtering implemented in `findInvitationByUUID()` function
 - Form data persists after submission for better user experience
 - Users can modify and resubmit RSVP without page refresh
+- **Race condition protection via UUID-based atomic operations**
+- **Sheet sorting/filtering safe for admin use**

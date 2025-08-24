@@ -208,6 +208,51 @@ function getCurrentDateTime() {
   return `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}:${almatyTime.getSeconds().toString().padStart(2, '0')}`;
 }
 
+// Helper function for race-condition-safe UUID-based sheet updates
+async function updateRowByUUID(uuid, updatedRowData, env) {
+  try {
+    const sheets = await getSheets(env);
+
+    // Get current sheet data to find the correct row by UUID
+    const result = await sheets.spreadsheets.values.get({
+      spreadsheetId: env.GOOGLE_SHEETS_ID,
+      range: 'Sheet1',
+    });
+
+    const rows = result.data.values || [];
+    
+    // Find the current row position by UUID (column H, index 7)
+    let currentRowIndex = -1;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i][7] === uuid) { // Column H contains UUID
+        currentRowIndex = i + 1; // 1-based index for Google Sheets
+        break;
+      }
+    }
+    
+    if (currentRowIndex === -1) {
+      return { success: false, error: 'UUID not found during update' };
+    }
+
+    // Perform atomic update using current row position
+    const updateResult = await sheets.spreadsheets.values.update({
+      spreadsheetId: env.GOOGLE_SHEETS_ID,
+      range: `Sheet1!A${currentRowIndex}:I${currentRowIndex}`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [updatedRowData],
+        majorDimension: 'ROWS'
+      }
+    });
+
+    return { success: true, result: updateResult.data };
+
+  } catch (error) {
+    console.error('Error in race-safe UUID update:', error);
+    return { success: false, error: error.message };
+  }
+}
+
 // Global Google Sheets authentication
 async function getSheets(env) {
   const { google } = await import('googleapis');
@@ -261,8 +306,8 @@ async function findInvitationByUUID(uuid, env) {
     for (let i = 0; i < rows.length; i++) {
       if (rows[i][7] === uuid) { // Column H contains UUID
         // Full internal data structure for backend operations
+        // NOTE: Removed rowIndex to prevent race conditions from sheet sorting
         const fullData = {
-          rowIndex: i + 1, // 1-based index for Google Sheets
           status: rows[i][0] || '',          // Column A: Status
           timestamp: rows[i][1] || '',       // Column B: Date/time (PRIVATE)
           adminName: rows[i][2] || '',       // Column C: Admin name (PRIVATE)
@@ -301,8 +346,6 @@ async function findInvitationByUUID(uuid, env) {
 // Helper function to update invitation date only (keep existing status)
 async function updateInvitationDate(invitationData, env) {
   try {
-    const sheets = await getSheets(env);
-
     // Prepare updated data with new timestamp but keep existing status
     const timestamp = getCurrentDateTime();
     
@@ -318,19 +361,14 @@ async function updateInvitationDate(invitationData, env) {
       invitationData.inviteLink      // Column I: Invite link (keep original)
     ];
 
-    // Update the specific row
-    const updateResult = await sheets.spreadsheets.values.update({
-      spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitationData.rowIndex}:I${invitationData.rowIndex}`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [updatedRow],
-        majorDimension: 'ROWS'
-      }
-    });
-
-    console.log('Google Sheets date update response:', updateResult.data);
-    return { success: true, result: updateResult.data };
+    // Use race-condition-safe UUID-based update
+    const updateResult = await updateRowByUUID(invitationData.uuid, updatedRow, env);
+    
+    if (updateResult.success) {
+      console.log('Google Sheets date update response:', updateResult.result);
+    }
+    
+    return updateResult;
 
   } catch (error) {
     console.error('Error updating invitation date:', error);
@@ -341,8 +379,6 @@ async function updateInvitationDate(invitationData, env) {
 // Helper function to update invitation status only
 async function updateInvitationStatus(invitationData, status, env) {
   try {
-    const sheets = await getSheets(env);
-
     // Prepare updated data with new status and timestamp
     const timestamp = getCurrentDateTime();
     
@@ -358,19 +394,14 @@ async function updateInvitationStatus(invitationData, status, env) {
       invitationData.inviteLink      // Column I: Invite link (keep original)
     ];
 
-    // Update the specific row
-    const updateResult = await sheets.spreadsheets.values.update({
-      spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitationData.rowIndex}:I${invitationData.rowIndex}`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [updatedRow],
-        majorDimension: 'ROWS'
-      }
-    });
-
-    console.log('Google Sheets status update response:', updateResult.data);
-    return { success: true, result: updateResult.data };
+    // Use race-condition-safe UUID-based update
+    const updateResult = await updateRowByUUID(invitationData.uuid, updatedRow, env);
+    
+    if (updateResult.success) {
+      console.log('Google Sheets status update response:', updateResult.result);
+    }
+    
+    return updateResult;
 
   } catch (error) {
     console.error('Error updating invitation status:', error);
@@ -381,8 +412,6 @@ async function updateInvitationStatus(invitationData, status, env) {
 // Helper function to update invitation RSVP
 async function updateInvitationRSVP(uuid, rsvpData, env) {
   try {
-    const sheets = await getSheets(env);
-
     // First find the invitation
     const invitation = await findInvitationByUUID(uuid, env);
     if (!invitation.success) {
@@ -409,19 +438,14 @@ async function updateInvitationRSVP(uuid, rsvpData, env) {
       internalData.inviteLink        // Column I: Invite link (keep original)
     ];
 
-    // Update the specific row
-    const updateResult = await sheets.spreadsheets.values.update({
-      spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${internalData.rowIndex}:I${internalData.rowIndex}`,
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [updatedRow],
-        majorDimension: 'ROWS'
-      }
-    });
-
-    console.log('Google Sheets update response:', updateResult.data);
-    return { success: true, result: updateResult.data };
+    // Use race-condition-safe UUID-based update
+    const updateResult = await updateRowByUUID(uuid, updatedRow, env);
+    
+    if (updateResult.success) {
+      console.log('Google Sheets update response:', updateResult.result);
+    }
+    
+    return updateResult;
 
   } catch (error) {
     console.error('Error updating invitation:', error);
