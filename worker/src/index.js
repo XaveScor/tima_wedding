@@ -34,7 +34,7 @@ app.post('/', async (c) => {
     const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
 
     // Map attendance to proper status values for Google Sheets
-    const statusText = attendance === 'yes' ? 'Создано' : 'Отклонено';
+    const statusText = attendance === 'yes' ? 'Принято' : 'Отклонено';
     
     // Service info - simple incrementing counter (could be improved with actual counter)
     const serviceInfo = Math.floor(Math.random() * 1000) + 1;
