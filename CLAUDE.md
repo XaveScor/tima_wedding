@@ -77,8 +77,30 @@
 ### Data Flow
 1. Admin creates invitation → Status: "Создано"
 2. User opens wedding page → Status: "Просмотрено" + timestamp updated (first time only)
-3. User submits RSVP → Status: "Принято"/"Отклонено" + all data updated
-4. User reopens invitation → Only timestamp updated (status preserved)
+3. User submits RSVP → Status: "Принято"/"Отклонено" + all data updated + form data persists
+4. User can modify RSVP → Form remains populated, can resubmit changes
+5. User reopens invitation → Previous RSVP data restored from server
+
+## Form Behavior & User Experience
+
+### Form Data Persistence
+**After RSVP Submission:**
+- ✅ **Form data remains visible** - All submitted data stays in form fields
+- ✅ **Attendance choice preserved** - Radio button remains checked
+- ✅ **All fields stay enabled** - User can immediately modify data
+- ✅ **Easy modification** - Can change details and resubmit without page refresh
+
+**Benefits:**
+- **Immediate feedback** - Users can see exactly what they submitted
+- **Easy corrections** - No need to re-enter all data if changes needed
+- **Transparent process** - Clear visibility of submitted information
+- **Better UX** - Consistent with modern form interaction patterns
+
+### Form State Management
+- **On first visit**: Form shows admin-set name (Column D)
+- **During interaction**: All changes preserved in form fields
+- **After submission**: Form retains all submitted data for review/modification
+- **On revisit**: Server data automatically restores previous RSVP
 
 ## Security & Data Privacy
 
@@ -119,3 +141,5 @@ The system implements strict data filtering to protect sensitive admin and syste
 - RSVP validation allows declining without name requirement
 - Invitation page always displays Column D (user name) in the name field
 - Response filtering implemented in `findInvitationByUUID()` function
+- Form data persists after submission for better user experience
+- Users can modify and resubmit RSVP without page refresh

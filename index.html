@@ -248,18 +248,8 @@
         formSubmitted = true; // Mark as submitted so no warning is shown
         saveSubmissionStatus(true); // Persist submission status to localStorage
         
-        // Clear form fields
-        nameField.value = '';
-        clearAllGuestFields();
-        messageField.value = '';
-        // Reset radio buttons
-        document.querySelectorAll('input[name="attendance"]').forEach(radio => {
-          radio.checked = false;
-        });
-        // Disable fields since no attendance is selected
-        nameField.disabled = true;
-        document.getElementById('addGuestBtn').disabled = true;
-        messageField.disabled = true;
+        // Keep form fields populated with submitted data for better UX
+        // Users can see what they submitted and modify if needed
       } else {
         alert(result.error || 'Ошибка отправки. Попробуйте еще раз.');
       }
