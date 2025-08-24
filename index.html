@@ -346,6 +346,67 @@
     document.body.style.pointerEvents = 'auto';
   }
 
+  /************* Restore form data from invitation ********************/
+  function restoreFormData(invitationData) {
+    console.log('Restoring form data:', invitationData);
+    console.log('Status value:', invitationData.status, 'Type:', typeof invitationData.status);
+    
+    // Restore name field
+    if (invitationData.name) {
+      const nameField = document.getElementById('nameField');
+      if (nameField) {
+        nameField.value = invitationData.name;
+      }
+    }
+    
+    // Restore guest fields from semicolon-separated string
+    if (invitationData.guest && invitationData.guest.trim()) {
+      const guests = invitationData.guest.split(';')
+        .map(guest => guest.trim())
+        .filter(guest => guest.length > 0);
+      
+      guests.forEach(guestName => {
+        addGuestField();
+        const guestInputs = document.querySelectorAll('.guest-input');
+        const lastInput = guestInputs[guestInputs.length - 1];
+        if (lastInput) {
+          lastInput.value = guestName;
+        }
+      });
+    }
+    
+    // Restore message field
+    if (invitationData.message) {
+      const messageField = document.getElementById('messageField');
+      if (messageField) {
+        messageField.value = invitationData.message;
+      }
+    }
+    
+    // Set attendance radio buttons based on status
+    console.log('Checking status for radio buttons...');
+    const status = invitationData.status ? invitationData.status.trim() : '';
+    
+    if (status === 'Принято') {
+      console.log('Setting attendYes to checked');
+      const attendYes = document.getElementById('attendYes');
+      if (attendYes) {
+        attendYes.checked = true;
+        toggleFields();
+      }
+    } else if (status === 'Отклонено') {
+      console.log('Setting attendNo to checked');
+      const attendNo = document.getElementById('attendNo');
+      if (attendNo) {
+        attendNo.checked = true;
+        toggleFields();
+      }
+    } else {
+      console.log('Status does not match RSVP values (Принято/Отклонено). Status:', status);
+      console.log('This might be a new invitation (Создано) or just viewed (Просмотрено)');
+    }
+  }
+
   /************* Initialize page state ********************/
   document.addEventListener('DOMContentLoaded', async function() {
     // Get UUID from URL
@@ -370,13 +431,8 @@
     // Store invitation data
     invitationData = validation.invitation;
     
-    // Pre-fill name field if available
-    if (invitationData.name) {
-      const nameField = document.getElementById('nameField');
-      if (nameField) {
-        nameField.value = invitationData.name;
-      }
-    }
+    // Restore form data from previous submission
+    restoreFormData(invitationData);
     
     // Hide loading state
     hideLoadingState();
