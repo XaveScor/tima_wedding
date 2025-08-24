@@ -27,9 +27,7 @@ app.post('/create-invite', async (c) => {
     const uuid = crypto.randomUUID();
     
     // Prepare data for Google Sheets
-    const now = new Date();
-    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
-    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
+    const timestamp = getCurrentDateTime();
     
     // Create invite link
     const inviteLink = `https://xavescor.github.io/tima_wedding/?uuid=${uuid}`;
@@ -197,6 +195,13 @@ app.all('*', (c) => {
 
 export default app;
 
+// Helper function to get current date/time in Asia/Almaty timezone
+function getCurrentDateTime() {
+  const now = new Date();
+  const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
+  return `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}:${almatyTime.getSeconds().toString().padStart(2, '0')}`;
+}
+
 // Global Google Sheets authentication
 async function getSheets(env) {
   const { google } = await import('googleapis');
@@ -279,9 +284,7 @@ async function updateInvitationDate(invitationData, env) {
     const sheets = await getSheets(env);
 
     // Prepare updated data with new timestamp but keep existing status
-    const now = new Date();
-    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
-    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
+    const timestamp = getCurrentDateTime();
     
     const updatedRow = [
       invitationData.status,         // Column A: Status (keep original)
@@ -319,9 +322,7 @@ async function updateInvitationStatus(invitationData, status, env) {
     const sheets = await getSheets(env);
 
     // Prepare updated data with new status and timestamp
-    const now = new Date();
-    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
-    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
+    const timestamp = getCurrentDateTime();
     
     const updatedRow = [
       status,                        // Column A: Status (updated)
@@ -365,9 +366,7 @@ async function updateInvitationRSVP(uuid, rsvpData, env) {
     }
 
     // Prepare updated data
-    const now = new Date();
-    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
-    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
+    const timestamp = getCurrentDateTime();
     
     const statusText = rsvpData.attendance === 'yes' ? 'Принято' : 'Отклонено';
     
