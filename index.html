@@ -60,7 +60,7 @@
         ул. Кожабекова 21/1
     </p>
 
-    <h3>Начало церемонии 18:00</h3>
+    <h3>Начало церемонии 17:00</h3>
     <p style="position:relative;overflow:hidden;">
         <iframe src="https://yandex.kz/map-widget/v1/?indoorLevel=1&ll=76.895010%2C43.201017&mode=search&oid=102807593836&ol=biz&z=17.84"
                 width="560" height="400" allowfullscreen="true" style="border: 0;" t></iframe>
@@ -153,7 +153,7 @@
     guestDiv.className = 'guest-field';
     guestDiv.id = `guest-${guestCounter}`;
     guestDiv.innerHTML = `
-      <input type="text" placeholder="Имя гостя" class="guest-input" 
+      <input type="text" placeholder="Имя гостя" class="guest-input"
              onpaste="preventSemicolon(event)" oninput="preventSemicolon(event)">
       <button type="button" onclick="removeGuestField(${guestCounter})">✕</button>
     `;
@@ -199,19 +199,19 @@
     const attendanceElement = document.querySelector('input[name="attendance"]:checked');
     const nameField = document.getElementById('nameField');
     const messageField = document.getElementById('messageField');
-    
+
     // Validate required fields
     if (!attendanceElement) {
       alert('Пожалуйста, выберите вариант посещения');
       return;
     }
-    
+
     // Name is only required when attending
     if (attendanceElement.value === 'yes' && !nameField.value.trim()) {
       alert('Пожалуйста, укажите ваше имя');
       return;
     }
-    
+
     // Prepare form data
     const formData = {
       attendance: attendanceElement.value,
@@ -220,13 +220,13 @@
       message: messageField.value.trim(),
       uuid: currentUUID
     };
-    
+
     // Show loading state
     const submitButton = document.querySelector('input[type="submit"]');
     const originalText = submitButton.value;
     submitButton.value = 'Отправляем...';
     submitButton.disabled = true;
-    
+
     try {
       // Send to Cloudflare Worker
       const response = await fetch('https://tima-wedding.xavescor.workers.dev', {
@@ -236,24 +236,24 @@
         },
         body: JSON.stringify(formData)
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         // Show different messages based on attendance choice
-        const defaultMessage = attendanceElement.value === 'yes' 
+        const defaultMessage = attendanceElement.value === 'yes'
           ? 'Ответ отправлен! Спасибо за подтверждение!'
           : 'Зафиксировано что вы не придёте';
         alert(result.message || defaultMessage);
         formSubmitted = true; // Mark as submitted so no warning is shown
         saveSubmissionStatus(true); // Persist submission status to localStorage
-        
+
         // Keep form fields populated with submitted data for better UX
         // Users can see what they submitted and modify if needed
       } else {
         alert(result.error || 'Ошибка отправки. Попробуйте еще раз.');
       }
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('Ошибка отправки. Проверьте интернет-соединение и попробуйте еще раз.');
@@ -304,7 +304,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('uuid');
   }
-  
+
   async function validateUUID(uuid) {
     try {
       const response = await fetch(`https://tima-wedding.xavescor.workers.dev/invite/${uuid}`);
@@ -315,7 +315,7 @@
       return { success: false, error: 'Ошибка проверки приглашения' };
     }
   }
-  
+
   function showInvalidInvitation() {
     document.body.innerHTML = `
       <div style="max-width: 600px; margin: 100px auto; padding: 20px; text-align: center; font-family: Arial, sans-serif;">
@@ -325,12 +325,12 @@
       </div>
     `;
   }
-  
+
   function showLoadingState() {
     document.body.style.opacity = '0.5';
     document.body.style.pointerEvents = 'none';
   }
-  
+
   function hideLoadingState() {
     document.body.style.opacity = '1';
     document.body.style.pointerEvents = 'auto';
@@ -345,13 +345,13 @@
         nameField.value = invitationData.name;
       }
     }
-    
+
     // Restore guest fields from semicolon-separated string
     if (invitationData.guest && invitationData.guest.trim()) {
       const guests = invitationData.guest.split(';')
         .map(guest => guest.trim())
         .filter(guest => guest.length > 0);
-      
+
       guests.forEach(guestName => {
         addGuestField();
         const guestInputs = document.querySelectorAll('.guest-input');
@@ -361,7 +361,7 @@
         }
       });
     }
-    
+
     // Restore message field
     if (invitationData.message) {
       const messageField = document.getElementById('messageField');
@@ -369,10 +369,10 @@
         messageField.value = invitationData.message;
       }
     }
-    
+
     // Set attendance radio buttons based on status
     const status = invitationData.status ? invitationData.status.trim() : '';
-    
+
     if (status === 'Принято') {
       const attendYes = document.getElementById('attendYes');
       if (attendYes) {
@@ -392,32 +392,32 @@
   document.addEventListener('DOMContentLoaded', async function() {
     // Get UUID from URL
     currentUUID = getUUIDFromURL();
-    
+
     if (!currentUUID) {
       showInvalidInvitation();
       return;
     }
-    
+
     // Show loading state while validating
     showLoadingState();
-    
+
     // Validate UUID
     const validation = await validateUUID(currentUUID);
-    
+
     if (!validation.success) {
       showInvalidInvitation();
       return;
     }
-    
+
     // Store invitation data
     invitationData = validation.invitation;
-    
+
     // Restore form data from previous submission
     restoreFormData(invitationData);
-    
+
     // Hide loading state
     hideLoadingState();
-    
+
     // Load submission status from localStorage
     formSubmitted = loadSubmissionStatus();
   });
