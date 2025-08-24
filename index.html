@@ -108,7 +108,10 @@
     </div>
 
     <input type="text" placeholder="Имя" required id="nameField"/>
-    <input type="text" placeholder="(Имя +1, если приведёте)" id="guestsField"/>
+    <div id="guestsContainer">
+      <!-- Dynamic guest fields will be added here -->
+    </div>
+    <button type="button" id="addGuestBtn" onclick="addGuestField()">Со мной придут ещё люди</button>
     <textarea placeholder="Что-то ещё хотите добавить?" id="messageField"></textarea>
     <input type="submit" onclick="sendEmail()" value="Отправить">
 </form>
@@ -122,6 +125,7 @@
   let formSubmitted = false;
   let currentUUID = null;
   let invitationData = null;
+  let guestCounter = 0;
 
   /************* localStorage functions ********************/
   function saveSubmissionStatus(submitted) {
@@ -142,12 +146,58 @@
     }
   }
 
+  /************* Dynamic guest management ********************/
+  function addGuestField() {
+    guestCounter++;
+    const guestDiv = document.createElement('div');
+    guestDiv.className = 'guest-field';
+    guestDiv.id = `guest-${guestCounter}`;
+    guestDiv.innerHTML = `
+      <input type="text" placeholder="Имя гостя" class="guest-input" 
+             onpaste="preventSemicolon(event)" oninput="preventSemicolon(event)">
+      <button type="button" onclick="removeGuestField(${guestCounter})">✕</button>
+    `;
+    document.getElementById('guestsContainer').appendChild(guestDiv);
+  }
+
+  function removeGuestField(id) {
+    const guestElement = document.getElementById(`guest-${id}`);
+    if (guestElement) {
+      guestElement.remove();
+    }
+  }
+
+  function preventSemicolon(event) {
+    if (event.type === 'input') {
+      // Remove semicolons from typed input
+      event.target.value = event.target.value.replace(/;/g, '');
+    } else if (event.type === 'paste') {
+      // Prevent pasting content with semicolons
+      event.preventDefault();
+      const paste = (event.clipboardData || window.clipboardData).getData('text');
+      const cleanPaste = paste.replace(/;/g, '');
+      event.target.value = event.target.value + cleanPaste;
+    }
+  }
+
+  function collectGuestData() {
+    const guestInputs = document.querySelectorAll('.guest-input');
+    const guests = Array.from(guestInputs)
+      .map(input => input.value.trim())
+      .filter(value => value.length > 0);
+    return guests.join(';');
+  }
+
+  function clearAllGuestFields() {
+    document.getElementById('guestsContainer').innerHTML = '';
+    guestCounter = 0;
+  }
+
   /************* Handle the data from RSVP ********************/
   async function sendEmail() {
     // Get form data
     const attendanceElement = document.querySelector('input[name="attendance"]:checked');
     const nameField = document.getElementById('nameField');
-    const guestsField = document.getElementById('guestsField');
     const messageField = document.getElementById('messageField');
     
     // Validate required fields
@@ -166,7 +216,7 @@
     const formData = {
       attendance: attendanceElement.value,
       name: nameField.value.trim(),
-      guest: guestsField.value.trim(),
+      guest: collectGuestData(),
       message: messageField.value.trim(),
       uuid: currentUUID
     };
@@ -200,7 +250,7 @@
         
         // Clear form fields
         nameField.value = '';
-        guestsField.value = '';
+        clearAllGuestFields();
         messageField.value = '';
         // Reset radio buttons
         document.querySelectorAll('input[name="attendance"]').forEach(radio => {
@@ -208,7 +258,7 @@
         });
         // Disable fields since no attendance is selected
         nameField.disabled = true;
-        guestsField.disabled = true;
+        document.getElementById('addGuestBtn').disabled = true;
         messageField.disabled = true;
       } else {
         alert(result.error || 'Ошибка отправки. Попробуйте еще раз.');
@@ -228,22 +278,22 @@
   function toggleFields() {
     const attendYes = document.getElementById('attendYes');
     const nameField = document.getElementById('nameField');
-    const guestsField = document.getElementById('guestsField');
+    const addGuestBtn = document.getElementById('addGuestBtn');
     const messageField = document.getElementById('messageField');
 
     if (attendYes.checked) {
       // Enable all fields when attending
       nameField.disabled = false;
-      guestsField.disabled = false;
+      addGuestBtn.disabled = false;
       messageField.disabled = false;
     } else {
       // Keep name field enabled when not attending
       nameField.disabled = false;
-      guestsField.disabled = true;
+      addGuestBtn.disabled = true;
       messageField.disabled = true;
 
-      // Only clear non-essential fields
-      guestsField.value = '';
+      // Clear guest fields and message when not attending
+      clearAllGuestFields();
       messageField.value = '';
     }
   }
