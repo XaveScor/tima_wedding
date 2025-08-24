@@ -33,23 +33,32 @@ app.post('/', async (c) => {
     const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
     const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
 
-    const attendanceText = attendance === 'yes' ? 'Обязательно буду!' : 'На этот раз без меня';
+    // Map attendance to proper status values for Google Sheets
+    const statusText = attendance === 'yes' ? 'Создано' : 'Отклонено';
+    
+    // Service info - simple incrementing counter (could be improved with actual counter)
+    const serviceInfo = Math.floor(Math.random() * 1000) + 1;
     
     const rowData = [
-      timestamp,
-      attendanceText,
-      name.trim(),
-      guest?.trim() || '',
-      message?.trim() || ''
+      statusText,           // Column A: Status
+      timestamp,           // Column B: Date/time  
+      name.trim(),         // Column C: Name
+      guest?.trim() || '', // Column D: Guest name
+      message?.trim() || '', // Column E: Comment
+      serviceInfo          // Column F: Service info
     ];
 
     // Save to Google Sheets
     const result = await saveToGoogleSheets(c.env, rowData);
     
     if (result.success) {
+      const message = attendance === 'yes' 
+        ? 'Ответ отправлен! Спасибо за подтверждение!'
+        : 'Зафиксировано что вы не придёте';
+      
       return c.json({ 
         success: true, 
-        message: 'Ответ отправлен! Спасибо за подтверждение!' 
+        message: message 
       });
     } else {
       console.error('Google Sheets error:', result.error);

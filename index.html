@@ -149,8 +149,14 @@
     const messageField = document.getElementById('messageField');
     
     // Validate required fields
-    if (!attendanceElement || !nameField.value.trim()) {
-      alert('Пожалуйста, заполните обязательные поля');
+    if (!attendanceElement) {
+      alert('Пожалуйста, выберите вариант посещения');
+      return;
+    }
+    
+    // Name is only required when attending
+    if (attendanceElement.value === 'yes' && !nameField.value.trim()) {
+      alert('Пожалуйста, укажите ваше имя');
       return;
     }
     
@@ -181,7 +187,11 @@
       const result = await response.json();
       
       if (result.success) {
-        alert(result.message || 'Ответ отправлен! Спасибо за подтверждение!');
+        // Show different messages based on attendance choice
+        const defaultMessage = attendanceElement.value === 'yes' 
+          ? 'Ответ отправлен! Спасибо за подтверждение!'
+          : 'Зафиксировано что вы не придёте';
+        alert(result.message || defaultMessage);
         formSubmitted = true; // Mark as submitted so no warning is shown
         saveSubmissionStatus(true); // Persist submission status to localStorage
         
@@ -224,13 +234,12 @@
       guestsField.disabled = false;
       messageField.disabled = false;
     } else {
-      // Disable all fields when not attending
-      nameField.disabled = true;
+      // Keep name field enabled when not attending
+      nameField.disabled = false;
       guestsField.disabled = true;
       messageField.disabled = true;
 
-      // Clear the fields
-      nameField.value = '';
+      // Only clear non-essential fields
       guestsField.value = '';
       messageField.value = '';
     }
