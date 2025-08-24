@@ -142,10 +142,16 @@
             }
         });
         
-        function copyLink() {
+        function copyLink(event) {
             const linkText = document.getElementById('inviteLink').textContent;
+            const copyButton = event.target;
+            const originalText = copyButton.textContent;
+            
             navigator.clipboard.writeText(linkText).then(() => {
-                alert('Ссылка скопирована!');
+                copyButton.textContent = 'Ссылка скопирована';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 2000);
             }).catch(err => {
                 console.error('Failed to copy: ', err);
                 // Fallback for older browsers
@@ -155,7 +161,12 @@
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                alert('Ссылка скопирована!');
+                
+                // Update button text instead of alert
+                copyButton.textContent = 'Ссылка скопирована';
+                setTimeout(() => {
+                    copyButton.textContent = originalText;
+                }, 2000);
             });
         }
     </script>

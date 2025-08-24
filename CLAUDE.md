@@ -26,6 +26,18 @@
 - `create-link.html` - Admin page for creating invitation links
 - `worker/src/index.js` - Cloudflare Worker backend API
 
+### Admin Interface (`create-link.html`)
+- **Purpose**: Create personalized invitation links for guests
+- **Features**:
+  - Simple name input form with validation
+  - UUID generation and Google Sheets integration
+  - Copy link functionality with visual feedback (button text changes)
+  - Error handling for failed creations
+  - Loading states during creation process
+- **Usage**: Enter guest name → Click "Создать ссылку" → Copy generated link
+- **Output**: Unique invitation URL with UUID parameter
+- **UX**: Non-intrusive copy confirmation via button label change (no alerts)
+
 ### API Endpoints
 - `POST /create-invite` - Creates new invitation with UUID and "Создано" status
 - `GET /invite/:uuid` - Validates UUID, updates status to "Просмотрено", returns invitation data
