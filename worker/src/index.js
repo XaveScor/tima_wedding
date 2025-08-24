@@ -34,18 +34,14 @@ app.post('/create-invite', async (c) => {
     // Create invite link
     const inviteLink = `https://xavescor.github.io/tima_wedding/?uuid=${uuid}`;
     
-    // Service info
-    const serviceInfo = Math.floor(Math.random() * 1000) + 1;
-    
     const rowData = [
       'Создано',               // Column A: Status (always "Создано" for new invites)
       timestamp,               // Column B: Date/time  
       name.trim(),            // Column C: Name
       '',                     // Column D: Guest name (empty for new invites)
       '',                     // Column E: Comment (empty for new invites)
-      serviceInfo,            // Column F: Service info
-      uuid,                   // Column G: UUID
-      inviteLink              // Column H: Invite link
+      uuid,                   // Column F: Service info (UUID)
+      inviteLink              // Column G: Invite link
     ];
 
     // Save to Google Sheets
@@ -245,9 +241,9 @@ async function findInvitationByUUID(uuid, env) {
 
     const rows = result.data.values || [];
     
-    // Find the row with matching UUID (column G, index 6)
+    // Find the row with matching UUID (column F, index 5)
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i][6] === uuid) { // Column G contains UUID
+      if (rows[i][5] === uuid) { // Column F contains UUID
         return { 
           success: true, 
           data: {
@@ -257,9 +253,8 @@ async function findInvitationByUUID(uuid, env) {
             name: rows[i][2] || '',
             guest: rows[i][3] || '',
             message: rows[i][4] || '',
-            serviceInfo: rows[i][5] || '',
-            uuid: rows[i][6] || '',
-            inviteLink: rows[i][7] || ''
+            uuid: rows[i][5] || '',        // Column F: Service info (UUID)
+            inviteLink: rows[i][6] || ''   // Column G: Invite link
           }
         };
       }
@@ -289,15 +284,14 @@ async function updateInvitationStatus(invitationData, status, env) {
       invitationData.name,           // Column C: Name (keep original)
       invitationData.guest,          // Column D: Guest name (keep original)
       invitationData.message,        // Column E: Comment (keep original)
-      invitationData.serviceInfo,    // Column F: Service info (keep original)
-      invitationData.uuid,           // Column G: UUID (keep original)
-      invitationData.inviteLink      // Column H: Invite link (keep original)
+      invitationData.uuid,           // Column F: Service info/UUID (keep original)
+      invitationData.inviteLink      // Column G: Invite link (keep original)
     ];
 
     // Update the specific row
     const updateResult = await sheets.spreadsheets.values.update({
       spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitationData.rowIndex}:H${invitationData.rowIndex}`,
+      range: `Sheet1!A${invitationData.rowIndex}:G${invitationData.rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRow],
@@ -338,15 +332,14 @@ async function updateInvitationRSVP(uuid, rsvpData, env) {
       rsvpData.name,                // Column C: Name
       rsvpData.guest,               // Column D: Guest name
       rsvpData.message,             // Column E: Comment
-      invitation.data.serviceInfo,   // Column F: Service info (keep original)
-      invitation.data.uuid,          // Column G: UUID (keep original)
-      invitation.data.inviteLink     // Column H: Invite link (keep original)
+      invitation.data.uuid,          // Column F: Service info/UUID (keep original)
+      invitation.data.inviteLink     // Column G: Invite link (keep original)
     ];
 
     // Update the specific row
     const updateResult = await sheets.spreadsheets.values.update({
       spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitation.data.rowIndex}:H${invitation.data.rowIndex}`,
+      range: `Sheet1!A${invitation.data.rowIndex}:G${invitation.data.rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRow],
