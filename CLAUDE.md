@@ -19,6 +19,16 @@
 3. **Принято** - User confirmed attendance (selected "Обязательно буду!")
 4. **Отклонено** - User declined attendance (selected "На этот раз без меня")
 
+### Status Transition Rules
+- **Создано** → **Просмотрено**: Only when user first opens invitation page
+- **Просмотрено** → **Принято/Отклонено**: When user submits RSVP
+- **Принято/Отклонено**: Final states - never overwritten
+
+### Date Column Behavior
+- **Always updated** on any API call (viewing or RSVP submission)
+- Tracks last activity regardless of status changes
+- Updates even when status remains unchanged
+
 ## System Architecture
 
 ### Files Structure
@@ -40,13 +50,28 @@
 
 ### API Endpoints
 - `POST /create-invite` - Creates new invitation with UUID and "Создано" status
-- `GET /invite/:uuid` - Validates UUID, updates status to "Просмотрено", returns invitation data
+- `GET /invite/:uuid` - Validates UUID, conditionally updates status, always updates date
 - `POST /` - Processes RSVP submission, updates status to "Принято"/"Отклонено"
+
+### API Behavior Details
+
+**GET /invite/:uuid (View Invitation):**
+- Always updates date/timestamp column
+- Status update logic:
+  - If status = "Создано" → Update to "Просмотрено"
+  - If status = "Просмотрено", "Принято", "Отклонено" → Keep unchanged
+- Prevents overwriting final RSVP responses
+
+**POST / (RSVP Submission):**
+- Always updates both date and status
+- Status set to "Принято" or "Отклонено" based on attendance choice
+- Updates all form data (name, guests, message)
 
 ### Data Flow
 1. Admin creates invitation → Status: "Создано"
-2. User opens wedding page → Status: "Просмотрено" + timestamp updated
+2. User opens wedding page → Status: "Просмотрено" + timestamp updated (first time only)
 3. User submits RSVP → Status: "Принято"/"Отклонено" + all data updated
+4. User reopens invitation → Only timestamp updated (status preserved)
 
 ## Technical Notes
 

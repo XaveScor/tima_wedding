@@ -87,8 +87,13 @@ app.get('/invite/:uuid', async (c) => {
     const invitation = await findInvitationByUUID(uuid, c.env);
     
     if (invitation.success) {
-      // Update status to "Просмотрено" when user views the invitation
-      await updateInvitationStatus(invitation.data, 'Просмотрено', c.env);
+      // Always update date, but only update status if it's "Создано"
+      if (invitation.data.status === 'Создано') {
+        await updateInvitationStatus(invitation.data, 'Просмотрено', c.env);
+      } else {
+        // Just update the date without changing status
+        await updateInvitationDate(invitation.data, c.env);
+      }
       
       return c.json({ 
         success: true, 
@@ -264,6 +269,46 @@ async function findInvitationByUUID(uuid, env) {
 
   } catch (error) {
     console.error('Error finding invitation:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Helper function to update invitation date only (keep existing status)
+async function updateInvitationDate(invitationData, env) {
+  try {
+    const sheets = await getSheets(env);
+
+    // Prepare updated data with new timestamp but keep existing status
+    const now = new Date();
+    const almatyTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Almaty"}));
+    const timestamp = `${almatyTime.getMonth() + 1}/${almatyTime.getDate()}/${almatyTime.getFullYear()} ${almatyTime.getHours().toString().padStart(2, '0')}:${almatyTime.getMinutes().toString().padStart(2, '0')}`;
+    
+    const updatedRow = [
+      invitationData.status,         // Column A: Status (keep original)
+      timestamp,                     // Column B: Date/time (updated)
+      invitationData.name,           // Column C: Name (keep original)
+      invitationData.guest,          // Column D: Guest name (keep original)
+      invitationData.message,        // Column E: Comment (keep original)
+      invitationData.uuid,           // Column F: Service info/UUID (keep original)
+      invitationData.inviteLink      // Column G: Invite link (keep original)
+    ];
+
+    // Update the specific row
+    const updateResult = await sheets.spreadsheets.values.update({
+      spreadsheetId: env.GOOGLE_SHEETS_ID,
+      range: `Sheet1!A${invitationData.rowIndex}:G${invitationData.rowIndex}`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [updatedRow],
+        majorDimension: 'ROWS'
+      }
+    });
+
+    console.log('Google Sheets date update response:', updateResult.data);
+    return { success: true, result: updateResult.data };
+
+  } catch (error) {
+    console.error('Error updating invitation date:', error);
     return { success: false, error: error.message };
   }
 }
