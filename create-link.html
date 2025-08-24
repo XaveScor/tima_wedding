@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание приглашений</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8f0;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .error {
+            background-color: #ffe6e6;
+            border-color: #ff4444;
+        }
+        
+        .link {
+            word-break: break-all;
+            font-family: monospace;
+            background-color: white;
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Создание приглашений на свадьбу</h1>
+    
+    <form id="createForm">
+        <div class="form-group">
+            <label for="name">Имя:</label>
+            <input type="text" id="name" required placeholder="Введите имя приглашаемого">
+        </div>
+        
+        <button type="submit" id="submitBtn">Создать ссылку</button>
+    </form>
+    
+    <div id="result" class="result">
+        <h3>Приглашение создано!</h3>
+        <p>Ссылка для <strong id="inviteeName"></strong>:</p>
+        <div class="link" id="inviteLink"></div>
+        <p><button onclick="copyLink()">Копировать ссылку</button></p>
+    </div>
+
+    <script>
+        document.getElementById('createForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('name');
+            const submitBtn = document.getElementById('submitBtn');
+            const result = document.getElementById('result');
+            
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert('Пожалуйста, введите имя');
+                return;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Создаём...';
+            result.style.display = 'none';
+            
+            try {
+                // Send request to create invitation
+                const response = await fetch('https://tima-wedding.xavescor.workers.dev/create-invite', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: name })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Show success result
+                    document.getElementById('inviteeName').textContent = name;
+                    document.getElementById('inviteLink').textContent = data.inviteLink;
+                    result.className = 'result';
+                    result.style.display = 'block';
+                    
+                    // Clear form
+                    nameInput.value = '';
+                } else {
+                    throw new Error(data.error || 'Ошибка создания приглашения');
+                }
+                
+            } catch (error) {
+                console.error('Error creating invitation:', error);
+                result.innerHTML = '<h3>Ошибка</h3><p>' + error.message + '</p>';
+                result.className = 'result error';
+                result.style.display = 'block';
+            } finally {
+                // Restore button state
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Создать ссылку';
+            }
+        });
+        
+        function copyLink() {
+            const linkText = document.getElementById('inviteLink').textContent;
+            navigator.clipboard.writeText(linkText).then(() => {
+                alert('Ссылка скопирована!');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = linkText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Ссылка скопирована!');
+            });
+        }
+    </script>
+</body>
+</html>
