@@ -76,6 +76,11 @@
             <input type="text" id="name" required placeholder="Введите имя приглашаемого">
         </div>
         
+        <div class="form-group">
+            <label for="comment">Комментарий (необязательно):</label>
+            <input type="text" id="comment" placeholder="Эта информация не будет видна пользователю. Только вам. Вы тут можете разместить уточнения о людях, если они имеют, к примеру, одинаковое имя, чтобы различать в дальнейшем">
+        </div>
+        
         <button type="submit" id="submitBtn">Создать ссылку</button>
     </form>
     
@@ -91,10 +96,13 @@
             e.preventDefault();
             
             const nameInput = document.getElementById('name');
+            const commentInput = document.getElementById('comment');
             const submitBtn = document.getElementById('submitBtn');
             const result = document.getElementById('result');
             
             const name = nameInput.value.trim();
+            const comment = commentInput.value.trim();
+            
             if (!name) {
                 alert('Пожалуйста, введите имя');
                 return;
@@ -112,7 +120,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ name: name })
+                    body: JSON.stringify({ name: name, comment: comment })
                 });
                 
                 const data = await response.json();
@@ -126,6 +134,7 @@
                     
                     // Clear form
                     nameInput.value = '';
+                    commentInput.value = '';
                 } else {
                     throw new Error(data.error || 'Ошибка создания приглашения');
                 }

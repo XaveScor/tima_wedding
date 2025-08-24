@@ -14,7 +14,7 @@ app.use('*', cors({
 // Create invitation endpoint
 app.post('/create-invite', async (c) => {
   try {
-    const { name } = await c.req.json();
+    const { name, comment } = await c.req.json();
     
     if (!name?.trim()) {
       return c.json({ 
@@ -35,11 +35,13 @@ app.post('/create-invite', async (c) => {
     const rowData = [
       'Создано',               // Column A: Status (always "Создано" for new invites)
       timestamp,               // Column B: Date/time  
-      name.trim(),            // Column C: Name
-      '',                     // Column D: Guest name (empty for new invites)
-      '',                     // Column E: Comment (empty for new invites)
-      uuid,                   // Column F: Service info (UUID)
-      inviteLink              // Column G: Invite link
+      name.trim(),            // Column C: Admin name (reference name)
+      name.trim(),            // Column D: User name (same as admin name initially)
+      comment?.trim() || '',  // Column E: Admin comment
+      '',                     // Column F: Additional guests (empty for new invites)
+      '',                     // Column G: User comments (empty for new invites)
+      uuid,                   // Column H: Service info (UUID)
+      inviteLink              // Column I: Invite link
     ];
 
     // Save to Google Sheets
@@ -85,17 +87,21 @@ app.get('/invite/:uuid', async (c) => {
     const invitation = await findInvitationByUUID(uuid, c.env);
     
     if (invitation.success) {
+      // Use internal data for backend operations
+      const internalData = invitation._internal;
+      
       // Always update date, but only update status if it's "Создано"
-      if (invitation.data.status === 'Создано') {
-        await updateInvitationStatus(invitation.data, 'Просмотрено', c.env);
+      if (internalData.status === 'Создано') {
+        await updateInvitationStatus(internalData, 'Просмотрено', c.env);
       } else {
         // Just update the date without changing status
-        await updateInvitationDate(invitation.data, c.env);
+        await updateInvitationDate(internalData, c.env);
       }
       
+      // Return only filtered public data to frontend
       return c.json({ 
         success: true, 
-        invitation: invitation.data
+        invitation: invitation.data  // This is the filtered publicData
       });
     } else {
       return c.json({ 
@@ -154,10 +160,10 @@ app.post('/', async (c) => {
       }, 400);
     }
 
-    // Update the existing invitation row
+    // Update the existing invitation row using internal data
     const result = await updateInvitationRSVP(uuid, {
       attendance,
-      name: name?.trim() || invitation.data.name,
+      name: name?.trim() || invitation.data.name,  // Use filtered data for fallback
       guest: guest?.trim() || '',
       message: message?.trim() || ''
     }, c.env);
@@ -251,21 +257,35 @@ async function findInvitationByUUID(uuid, env) {
 
     const rows = result.data.values || [];
     
-    // Find the row with matching UUID (column F, index 5)
+    // Find the row with matching UUID (column H, index 7)
     for (let i = 0; i < rows.length; i++) {
-      if (rows[i][5] === uuid) { // Column F contains UUID
+      if (rows[i][7] === uuid) { // Column H contains UUID
+        // Full internal data structure for backend operations
+        const fullData = {
+          rowIndex: i + 1, // 1-based index for Google Sheets
+          status: rows[i][0] || '',          // Column A: Status
+          timestamp: rows[i][1] || '',       // Column B: Date/time (PRIVATE)
+          adminName: rows[i][2] || '',       // Column C: Admin name (PRIVATE)
+          name: rows[i][3] || '',            // Column D: User name
+          adminComment: rows[i][4] || '',    // Column E: Admin comment (PRIVATE)
+          guest: rows[i][5] || '',           // Column F: Additional guests
+          message: rows[i][6] || '',         // Column G: User message
+          uuid: rows[i][7] || '',            // Column H: Service info (PRIVATE)
+          inviteLink: rows[i][8] || ''       // Column I: Invite link (PRIVATE)
+        };
+        
+        // Filtered data for frontend - ONLY user-safe fields
+        const publicData = {
+          status: fullData.status,           // Column A: Status
+          name: fullData.name,               // Column D: User name
+          guest: fullData.guest,             // Column F: Additional guests
+          message: fullData.message          // Column G: User message
+        };
+        
         return { 
           success: true, 
-          data: {
-            rowIndex: i + 1, // 1-based index for Google Sheets
-            status: rows[i][0] || '',
-            timestamp: rows[i][1] || '',
-            name: rows[i][2] || '',
-            guest: rows[i][3] || '',
-            message: rows[i][4] || '',
-            uuid: rows[i][5] || '',        // Column F: Service info (UUID)
-            inviteLink: rows[i][6] || ''   // Column G: Invite link
-          }
+          data: publicData,                  // Send only filtered data to frontend
+          _internal: fullData                // Keep full data for backend operations
         };
       }
     }
@@ -289,17 +309,19 @@ async function updateInvitationDate(invitationData, env) {
     const updatedRow = [
       invitationData.status,         // Column A: Status (keep original)
       timestamp,                     // Column B: Date/time (updated)
-      invitationData.name,           // Column C: Name (keep original)
-      invitationData.guest,          // Column D: Guest name (keep original)
-      invitationData.message,        // Column E: Comment (keep original)
-      invitationData.uuid,           // Column F: Service info/UUID (keep original)
-      invitationData.inviteLink      // Column G: Invite link (keep original)
+      invitationData.adminName,      // Column C: Admin name (keep original)
+      invitationData.name,           // Column D: User name (keep original)
+      invitationData.adminComment,   // Column E: Admin comment (keep original)
+      invitationData.guest,          // Column F: Additional guests (keep original)
+      invitationData.message,        // Column G: User message (keep original)
+      invitationData.uuid,           // Column H: Service info/UUID (keep original)
+      invitationData.inviteLink      // Column I: Invite link (keep original)
     ];
 
     // Update the specific row
     const updateResult = await sheets.spreadsheets.values.update({
       spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitationData.rowIndex}:G${invitationData.rowIndex}`,
+      range: `Sheet1!A${invitationData.rowIndex}:I${invitationData.rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRow],
@@ -327,17 +349,19 @@ async function updateInvitationStatus(invitationData, status, env) {
     const updatedRow = [
       status,                        // Column A: Status (updated)
       timestamp,                     // Column B: Date/time (updated)
-      invitationData.name,           // Column C: Name (keep original)
-      invitationData.guest,          // Column D: Guest name (keep original)
-      invitationData.message,        // Column E: Comment (keep original)
-      invitationData.uuid,           // Column F: Service info/UUID (keep original)
-      invitationData.inviteLink      // Column G: Invite link (keep original)
+      invitationData.adminName,      // Column C: Admin name (keep original)
+      invitationData.name,           // Column D: User name (keep original)
+      invitationData.adminComment,   // Column E: Admin comment (keep original)
+      invitationData.guest,          // Column F: Additional guests (keep original)
+      invitationData.message,        // Column G: User message (keep original)
+      invitationData.uuid,           // Column H: Service info/UUID (keep original)
+      invitationData.inviteLink      // Column I: Invite link (keep original)
     ];
 
     // Update the specific row
     const updateResult = await sheets.spreadsheets.values.update({
       spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitationData.rowIndex}:G${invitationData.rowIndex}`,
+      range: `Sheet1!A${invitationData.rowIndex}:I${invitationData.rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRow],
@@ -364,6 +388,9 @@ async function updateInvitationRSVP(uuid, rsvpData, env) {
     if (!invitation.success) {
       return { success: false, error: 'Invitation not found' };
     }
+    
+    // Use internal data for backend operations
+    const internalData = invitation._internal;
 
     // Prepare updated data
     const timestamp = getCurrentDateTime();
@@ -373,17 +400,19 @@ async function updateInvitationRSVP(uuid, rsvpData, env) {
     const updatedRow = [
       statusText,                    // Column A: Status
       timestamp,                     // Column B: Date/time (updated)
-      rsvpData.name,                // Column C: Name
-      rsvpData.guest,               // Column D: Guest name
-      rsvpData.message,             // Column E: Comment
-      invitation.data.uuid,          // Column F: Service info/UUID (keep original)
-      invitation.data.inviteLink     // Column G: Invite link (keep original)
+      internalData.adminName,        // Column C: Admin name (keep original)
+      rsvpData.name,                // Column D: User name (updated by user)
+      internalData.adminComment,     // Column E: Admin comment (keep original)
+      rsvpData.guest,               // Column F: Additional guests (updated by user)
+      rsvpData.message,             // Column G: User message (updated by user)
+      internalData.uuid,             // Column H: Service info/UUID (keep original)
+      internalData.inviteLink        // Column I: Invite link (keep original)
     ];
 
     // Update the specific row
     const updateResult = await sheets.spreadsheets.values.update({
       spreadsheetId: env.GOOGLE_SHEETS_ID,
-      range: `Sheet1!A${invitation.data.rowIndex}:G${invitation.data.rowIndex}`,
+      range: `Sheet1!A${internalData.rowIndex}:I${internalData.rowIndex}`,
       valueInputOption: 'RAW',
       requestBody: {
         values: [updatedRow],

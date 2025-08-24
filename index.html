@@ -348,10 +348,7 @@
 
   /************* Restore form data from invitation ********************/
   function restoreFormData(invitationData) {
-    console.log('Restoring form data:', invitationData);
-    console.log('Status value:', invitationData.status, 'Type:', typeof invitationData.status);
-    
-    // Restore name field
+    // Always display Column D (user name) in name field
     if (invitationData.name) {
       const nameField = document.getElementById('nameField');
       if (nameField) {
@@ -384,26 +381,20 @@
     }
     
     // Set attendance radio buttons based on status
-    console.log('Checking status for radio buttons...');
     const status = invitationData.status ? invitationData.status.trim() : '';
     
     if (status === 'Принято') {
-      console.log('Setting attendYes to checked');
       const attendYes = document.getElementById('attendYes');
       if (attendYes) {
         attendYes.checked = true;
         toggleFields();
       }
     } else if (status === 'Отклонено') {
-      console.log('Setting attendNo to checked');
       const attendNo = document.getElementById('attendNo');
       if (attendNo) {
         attendNo.checked = true;
         toggleFields();
       }
-    } else {
-      console.log('Status does not match RSVP values (Принято/Отклонено). Status:', status);
-      console.log('This might be a new invitation (Создано) or just viewed (Просмотрено)');
     }
   }
 
